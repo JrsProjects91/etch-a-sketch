@@ -5,13 +5,17 @@ const gridSizeDom = document.querySelector("#grid-size")
 const colorToggleButton = document.querySelector('#colorToggle');
 const colorDisplayDom = document.querySelector('#colorDisplay')
 
+const curOpacity = (e) => e.style.opacity;
+
 const randomRgb = (num) => Math.floor(Math.random() * num);
 
 
 clearButton.addEventListener("click", () => {
     const grids = document.querySelectorAll(".grid-element")
     grids.forEach((grid )=> {
-        grid.classList.remove("coloredIn")
+        grid.style.backgroundColor = "gray"
+        grid.style.filter = ''
+        grid.classList.remove("color")
         console.log(grid)
     })
 })
@@ -22,13 +26,25 @@ const createElement = (type,className,id) => {
     element.className = className;
     element.id = id;
     if (className === "grid-element") {
-            element.addEventListener("mouseover", () => {
-        element.classList.add("coloredIn")
-        if (colorDisplayDom.textContent === "CURRENT COLOR: BLACK") {
-            element.style.backgroundColor === "rgb(0,0,0)"
-        } else {
-            element.style.backgroundColor = `rgb(${randomRgb(256)}, ${randomRgb(256)}, ${randomRgb(256)})`    //${randomRgb}, ${randomRgb}, ${randomRgb}
-        }
+            element.addEventListener("mouseover", (e) => {
+                if(e.target.className !== "grid-element color") {
+                    console.log(e.target.className)
+                    element.classList.add("color")
+                 if (colorDisplayDom.textContent === "CURRENT COLOR: BLACK") {
+                     element.style.backgroundColor === "rgb(0,0,0)"
+                     element.style.filter = "brightness(90%)"
+                 } else {
+                     element.style.backgroundColor = `rgb(${randomRgb(256)}, ${randomRgb(256)}, ${randomRgb(256)})`    //${randomRgb}, ${randomRgb}, ${randomRgb}
+                     element.style.filter = "brightness(90%)"
+                 }
+            } else {
+                let curOpacity = e.target.style.filter
+                    
+                    let curBrightness = curOpacity.match(/\d+/g);
+                   e.target.style.filter = `brightness(${Number(curBrightness) - 10}%)`;
+                   console.log(e.target.style)
+            
+            }
     })
     }
     return element;
@@ -71,5 +87,8 @@ colorToggleButton.addEventListener("click", () => {
 })
 
 createDivGrid(50)
+
+const gridElement = document.querySelector(`.grid-element`)
+
 
 console.log(randomRgb(256))
