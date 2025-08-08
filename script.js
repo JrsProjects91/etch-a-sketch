@@ -4,10 +4,31 @@ const updateGridButton = document.querySelector('#update')
 const gridSizeDom = document.querySelector("#grid-size")
 const colorToggleButton = document.querySelector('#colorToggle');
 const colorDisplayDom = document.querySelector('#colorDisplay')
+const gridContainer = document.querySelector(".etch-container")
+const pencilButton = document.createElement("button", "", "pencil")
+const penButton = document.createElement("button", "", "pen")
+let pencil = true;
+let pen = false
 
 const curOpacity = (e) => e.style.opacity;
 
 const randomRgb = (num) => Math.floor(Math.random() * num);
+
+function createBottomButtons() {
+    const bottomButtonContainer = createElement("div", "bottomButtonContainer", "")
+    penButton.textContent = "Pen"
+    pencilButton.textContent = "Pencil"
+    const toolDisplayDOM = createElement("div", "", "toolDisplay")
+    if (pencil) {
+        toolDisplayDOM.textContent = "Current Tool: Pencil"
+    } else {
+        toolDisplayDOM.textContent = "Current Tool: Pen"
+    }
+    bottomButtonContainer.appendChild(pencilButton)
+    bottomButtonContainer.appendChild(penButton)
+    bottomButtonContainer.appendChild(toolDisplayDOM)
+    body.appendChild(bottomButtonContainer)
+}
 
 
 clearButton.addEventListener("click", () => {
@@ -16,7 +37,6 @@ clearButton.addEventListener("click", () => {
         grid.style.backgroundColor = "gray"
         grid.style.filter = ''
         grid.classList.remove("color")
-        console.log(grid)
     })
 })
 
@@ -27,24 +47,54 @@ const createElement = (type,className,id) => {
     element.id = id;
     if (className === "grid-element") {
             element.addEventListener("mouseover", (e) => {
-                if(e.target.className !== "grid-element color") {
-                    console.log(e.target.className)
-                    element.classList.add("color")
+                if (e.target.style.filter === "") {
+                    e.target.style.filter = 'brightness(100%)'
+                }
+                const curOpacity = e.target.style.filter
+                const curBrightness = Number(curOpacity.match(/\d+/g));
+                if(e.target.className === "grid-element") {
+    
                  if (colorDisplayDom.textContent === "CURRENT COLOR: BLACK") {
+                    e.target.classList.add("black")
                      element.style.backgroundColor === "rgb(0,0,0)"
-                     element.style.filter = "brightness(90%)"
+                     if (pencil) {
+                         e.target.style.filter = `brightness(${Number(e.target.style.filter.match(/\d+/g)) - 10}%)`;
+                     } else {
+                        element.style.filter = "brightness(0%)"
+                     }
                  } else {
+                    e.target.classList.add("color")
                      element.style.backgroundColor = `rgb(${randomRgb(256)}, ${randomRgb(256)}, ${randomRgb(256)})`    //${randomRgb}, ${randomRgb}, ${randomRgb}
-                     element.style.filter = "brightness(90%)"
+                     if (pencil) {
+                         e.target.style.filter = `brightness(${Number(e.target.style.filter.match(/\d+/g)) - 10}%)`;
+                     } else {
+                        element.style.filter = "brightness(100%)"
+                     }
                  }
             } else {
-                let curOpacity = e.target.style.filter
                     
-                    let curBrightness = curOpacity.match(/\d+/g);
-                   e.target.style.filter = `brightness(${Number(curBrightness) - 10}%)`;
-                   console.log(e.target.style)
-            
-            }
+                    if (pencil && colorDisplayDom.textContent === "CURRENT COLOR: BLACK") {
+                       e.target.style.filter = `brightness(${Number(e.target.style.filter.match(/\d+/g)) - 10}%)`;
+                    } else if (pen && colorDisplayDom.textContent === "CURRENT COLOR: BLACK"){
+                        e.target.style.filter = "brightness(0%)"
+                    } else if (pencil) {
+                        if (e.target.className !== "grid-element color") {
+                            element.style.backgroundColor = `rgb(${randomRgb(256)}, ${randomRgb(256)}, ${randomRgb(256)})`
+                            e.target.style.filter = 'brightness(100%)'
+                            e.target.className = 'grid-element color'
+                        } else {
+                            e.target.style.filter = `brightness(${Number(e.target.style.filter.match(/\d+/g)) - 10}%)`;
+                        }
+                    } else if (pen) {
+                        if (e.target.className !== 'grid-element color')
+                        {
+                        element.style.backgroundColor = `rgb(${randomRgb(256)}, ${randomRgb(256)}, ${randomRgb(256)})`
+                        e.target.style.filter = "brightness(100%)"
+                        e.target.className = "grid-element-color"
+                        }
+
+                    }
+        }
     })
     }
     return element;
@@ -53,27 +103,39 @@ const createElement = (type,className,id) => {
 
 
 function createDivGrid(gridSize) {
-    const gridContainer = createElement("div", "etch-container", 'contain')
     gridSizeDom.textContent = `${gridSize} x ${gridSize}`
     for (r=0; r < gridSize; r++) {
         const row = createElement("div", "gridRow", `r${r + 1}`);
         for (g = 0; g < gridSize; g++) {
-            row.appendChild(createElement("div", "grid-element", `g${g + 1}`))
+            const newGrid = createElement("div", "grid-element", `g${g + 1}`)
+            row.appendChild(newGrid)
         }
         gridContainer.appendChild(row)
     }
     body.appendChild(gridContainer);
+    document.querySelectorAll(".grid-element").forEach((element) => {
+
+        element.style.width = `${(700 / gridSize) - 2}px`;
+    })
 
 }
 
 function updateDivGrid(gridSize) {
-    const element = document.querySelector(".etch-container");
-    element.remove();
+    gridContainer.innerHTML = ""
     createDivGrid(gridSize);
+    createBottomButtons();
+    
 }
 
 updateGridButton.addEventListener("click", () => {
-    updateDivGrid(prompt("New Grid Length? Smaller Than 100"))
+    const num = Number(prompt("New Grid Length? Smaller Than 100"))
+
+    if (num < 1 || num > 100 || !num){
+        alert("Number is invalid, Please choose an interger between 1 and 100")
+    } else {
+            updateDivGrid(num)
+    }
+
 })
 
 colorToggleButton.addEventListener("click", () => {
@@ -86,9 +148,22 @@ colorToggleButton.addEventListener("click", () => {
     }
 })
 
+penButton.addEventListener("click", () => {
+    pen = true;
+    pencil = false
+    document.querySelector("#toolDisplay").textContent = "Current Tool: Pen"
+})
+
+pencilButton.addEventListener("click", () => {
+    pen = false;
+    pencil = true
+    document.querySelector("#toolDisplay").textContent = "Current Tool: Pencil"
+})
+
 createDivGrid(50)
+createBottomButtons()
+
 
 const gridElement = document.querySelector(`.grid-element`)
 
 
-console.log(randomRgb(256))

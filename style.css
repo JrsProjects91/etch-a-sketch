@@ -2,7 +2,7 @@ body {
     min-height: 100vh;
     background-color: lightgray;
     flex-direction: column;
-    
+    gap: 10px;
 }
 
 
@@ -13,11 +13,14 @@ body, .etch-container, .button-container {
     justify-content: center;
 }
 
+
 .etch-container {
-  flex: 0;
+  flex-wrap: wrap;
   flex-direction: column;
   gap: 2px;
-
+  width: 700px;
+  height: 700px;
+  border: 3px solid black;
 }
 
 .gridRow {
@@ -29,14 +32,13 @@ body, .etch-container, .button-container {
 
 .grid-element {
     background-color: gray;
-    width: 13px;
-    height: 13px;
+    flex-grow: 1 0 auto;
+    aspect-ratio: 1 / 1;
+    width: 12px;
 }
 
 .coloredIn {
     background-color: black;
-        width: 13px;
-        height: 13px;
 }
 
 button {
@@ -45,4 +47,9 @@ button {
 
 .button-container {
     gap: 15px;
+}
+
+.bottomButtonContainer {
+    display: flex;
+    gap: 5px;
 }
