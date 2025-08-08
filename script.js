@@ -2,6 +2,11 @@ const body = document.querySelector("body")
 const clearButton= document.querySelector("#clear")
 const updateGridButton = document.querySelector('#update')
 const gridSizeDom = document.querySelector("#grid-size")
+const colorToggleButton = document.querySelector('#colorToggle');
+const colorDisplayDom = document.querySelector('#colorDisplay')
+
+const randomRgb = (num) => Math.floor(Math.random() * num);
+
 
 clearButton.addEventListener("click", () => {
     const grids = document.querySelectorAll(".grid-element")
@@ -19,6 +24,11 @@ const createElement = (type,className,id) => {
     if (className === "grid-element") {
             element.addEventListener("mouseover", () => {
         element.classList.add("coloredIn")
+        if (colorDisplayDom.textContent === "CURRENT COLOR: BLACK") {
+            element.style.backgroundColor === "rgb(0,0,0)"
+        } else {
+            element.style.backgroundColor = `rgb(${randomRgb(256)}, ${randomRgb(256)}, ${randomRgb(256)})`    //${randomRgb}, ${randomRgb}, ${randomRgb}
+        }
     })
     }
     return element;
@@ -50,5 +60,16 @@ updateGridButton.addEventListener("click", () => {
     updateDivGrid(prompt("New Grid Length? Smaller Than 100"))
 })
 
+colorToggleButton.addEventListener("click", () => {
+    if (colorToggleButton.textContent === "Change Color To Random") {
+        colorDisplayDom.textContent = "CURRENT COLOR: Random"
+        colorToggleButton.textContent = "Change Color To Black"
+    } else {
+        colorDisplayDom.textContent = "CURRENT COLOR: BLACK"
+        colorToggleButton.textContent = "Change Color To Random"
+    }
+})
+
 createDivGrid(50)
 
+console.log(randomRgb(256))
